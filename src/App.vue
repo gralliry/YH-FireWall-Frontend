@@ -42,6 +42,10 @@
     .header-right {
         position: absolute;
         right: 10px;
+
+        .el-button {
+            border: none;
+        }
     }
 }
 
@@ -69,35 +73,47 @@
 </style>
 
 <template>
-    <div class="wrapper">
+    <el-container class="wrapper">
         <el-header class="header">
             <div class="header-content">
                 <h3 class="header-title">YH Firewall Web Manager</h3>
                 <div class="header-right">
-                    <DarkMode />
+                    <el-button :icon="isDark ? Moon : Sunny" @click="toggleDark()" />
                 </div>
             </div>
         </el-header>
 
         <el-main class="main">
             <!-- 左侧导航菜单 -->
-            <el-menu class="main-nav" router default-active="/rule" :unique-opened="true">
+            <el-menu class="main-nav" router default-active="/settings" :unique-opened="true">
                 <el-menu-item index="/rule">Rule</el-menu-item>
                 <el-menu-item index="/connection">Connection</el-menu-item>
                 <el-menu-item index="/interface">Interface</el-menu-item>
                 <el-menu-item index="/config">Config</el-menu-item>
+                <el-menu-item index="/settings">Settings</el-menu-item>
             </el-menu>
 
             <!-- 右侧内容区：由路由控制 -->
             <div class="main-content">
-                <router-view />
+                <router-view v-slot="{ Component }">
+                    <keep-alive>
+                        <component :is="Component" />
+                    </keep-alive>
+                </router-view>
             </div>
         </el-main>
 
         <el-footer class="footer">© 2025 梁建烨. All rights reserved.</el-footer>
-    </div>
+    </el-container>
 </template>
 
 <script setup lang="ts">
-import DarkMode from '@/components/DarkMode.vue'
+// 引入VueUse暗黑模式核心
+import { useDark, useToggle } from '@vueuse/core'
+import { Sunny, Moon } from '@element-plus/icons-vue'
+
+// 初始化暗黑模式检测器
+const isDark = useDark()
+// 生成切换函数（类型安全）
+const toggleDark = useToggle(isDark)
 </script>

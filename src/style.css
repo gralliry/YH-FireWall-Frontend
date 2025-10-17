@@ -2,6 +2,15 @@
     font-family: 'Consolas', 'Courier New', monospace;
 }
 
+.el-input__inner {
+    font-family: 'Consolas', 'Courier New', monospace;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
 #app {
     height: 100%;
     width: 100%;

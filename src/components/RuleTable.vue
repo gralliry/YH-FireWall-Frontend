@@ -35,7 +35,7 @@
 
 
 <template>
-    <el-container>
+    <el-container v-loading="loading">
         <!-- 顶部：添加规则 & 可见列控制 -->
         <el-header class="header">
             <div class="header-selector">
@@ -53,8 +53,8 @@
                 <el-checkbox v-model="visibleCols.enable">Enable</el-checkbox>
             </div>
             <div class="header-buttons">
-                <el-button :icon="Refresh" @click="handleRefresh" :disabled="!canRefresh" />
-                <el-button :icon="Plus" @click="handleAdd" />
+                <el-button :icon="Refresh" @click="handleRefresh" :disabled="loading" />
+                <el-button :icon="Plus" @click="handleAdd" :disabled="loading"/>
             </div>
         </el-header>
 
@@ -171,8 +171,8 @@
                         <el-button v-if="!row.isEditing" size="small" type="primary" @click="handleEdit(row)">
                             Edit
                         </el-button>
-                        <el-popconfirm v-if="!row.isEditing" icon-color="#626AEF" title="Delete this?"
-                            placement="left" @confirm="handleDelete($index)">
+                        <el-popconfirm v-if="!row.isEditing" icon-color="#626AEF" title="Delete this?" placement="left"
+                            @confirm="handleDelete($index)">
                             <template #reference>
                                 <el-button size="small" type="danger">Delete</el-button>
                             </template>
@@ -196,10 +196,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onActivated } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus, Refresh } from '@element-plus/icons-vue'
-import axiosInstance from '@/api/instance'
+import { axiosInstance } from '@/api/instance'
 
 // ---------- 状态 ----------
 interface Rule {
@@ -284,7 +284,7 @@ const handleConfirm = (row: ERule) => {
             row.isNew = false
             ElMessage.success('Rule added')
         }).catch(err => {
-            ElMessage.error('Failed to add rule: ' + err)
+            ElMessage.error(err)
         })
     } else {
         axiosInstance.put(`/rule/${row.data.id}`, row.cache).then(() => {
@@ -292,7 +292,7 @@ const handleConfirm = (row: ERule) => {
             row.isEditing = false
             ElMessage.success('Saved successfully')
         }).catch(err => {
-            ElMessage.error('Failed to update rule: ' + err)
+            ElMessage.error(err)
         })
     }
 }
@@ -307,7 +307,7 @@ const handleDelete = (index: number) => {
         ruleData.value.splice(index, 1)
         ElMessage.success('Deleted successfully')
     }).catch(err => {
-        ElMessage.error('Failed to delete rule: ' + err)
+        ElMessage.error(err)
     })
 }
 
@@ -336,10 +336,10 @@ const handleAdd = () => {
     ruleData.value.unshift(newERule)
 }
 
-const canRefresh = ref(true)
+const loading = ref(false)
 
 const handleRefresh = () => {
-    canRefresh.value = false
+    loading.value = true
     axiosInstance.get('/rule').then(res => {
         ruleData.value = res.data.map((r: Rule) => ({
             data: { ...r },
@@ -349,13 +349,14 @@ const handleRefresh = () => {
         }))
         ElMessage.success(`Rule list refreshed`)
     }).catch(err => {
-        ElMessage.error(`Failed to fetch rule list: ${err}`)
+        ruleData.value = []
+        ElMessage.error(err)
     }).finally(() => {
-        canRefresh.value = true
+        loading.value = false
     })
 }
 
-onMounted(() => {
+onActivated(() => {
     handleRefresh()
 })
 

@@ -1,5 +1,5 @@
 <template>
-    <el-table :data="interfaceData" stripe highlight-current-row>
+    <el-table :data="interfaceData" v-loading="loading" stripe highlight-current-row>
         <el-table-column label="Index" prop="index" align="center" />
         <el-table-column label="Name" prop="name" align="center" />
         <el-table-column label="MTU" prop="mtu" align="center" />
@@ -18,9 +18,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onActivated } from 'vue';
 import { ElMessage } from 'element-plus'
-import axiosInstance from '@/api/instance'
+import { axiosInstance } from '@/api/instance'
 
 interface Interface {
     index: number
@@ -34,18 +34,24 @@ interface Interface {
 // 接口数据
 const interfaceData = ref<Interface[]>([])
 
+const loading = ref(false)
+
 // 获取接口列表
 const handleGetInterfaces = () => {
+    loading.value = true
     axiosInstance.get('/interface').then(res => {
         interfaceData.value = res.data
         ElMessage.success('Interface list refreshed')
     }).catch(err => {
-        ElMessage.error('Failed to fetch interface list: ' + err)
+        interfaceData.value = []
+        ElMessage.error(err)
+    }).finally(() => {
+        loading.value = false
     })
 }
 
 // 监听页面加载
-onMounted(() => {
+onActivated(() => {
     handleGetInterfaces()
 })
 

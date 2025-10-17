@@ -59,62 +59,69 @@
 
 
 <template>
-    <el-container class="container">
+    <el-container class="container" v-loading="loading">
         <el-header class="header">
-            <el-button :icon="Refresh" @click="handleRefresh" />
-            <el-button :icon="Select" @click="handleSave" />
+            <el-button :icon="Refresh" @click="handleRefresh" :disabled="loading"/>
+            <el-button :icon="Select" @click="handleSave" :disabled="loading"/>
         </el-header>
-
         <el-main class="main">
-            <div class="textarea-with-lines">
+            <div class="textarea-with-lines" >
                 <div class="line-numbers">
                     <div v-for="i in lineCount" :key="i">{{ i }}</div>
                 </div>
-                <el-input v-model="value" type="textarea" class="code-input" @input="updateLineCount" />
+                <el-input v-model="value" type="textarea" class="code-input" />
             </div>
         </el-main>
     </el-container>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount, onActivated } from 'vue'
+
 import { ElMessage } from 'element-plus'
+
+
 import { Select, Refresh } from '@element-plus/icons-vue'
 
-import axiosInstance from '@/api/instance'
+import { axiosInstance } from '@/api/instance'
 
 const value = ref<string>('')
 
 const lineCount = ref<number>(1)
 
-const updateLineCount = () => {
-    lineCount.value = value.value.split('\n').length || 1
-}
+const loading = ref(false)
 
-// 初始化时同步一次
-watch(value, updateLineCount, { immediate: true })
+// 初始化行数，同步一次
+watch(value, () => { lineCount.value = value.value.split('\n').length || 1 }, { immediate: true })
 
 // 处理刷新配置文件
 const handleRefresh = () => {
+    loading.value = true
     axiosInstance.get('/config').then(res => {
         value.value = res.data
         ElMessage.success(`Config file refreshed`)
     }).catch(err => {
-        ElMessage.error(`Failed to fetch config file: ${err}`)
+        value.value = ''
+        ElMessage.error(err.response.data)
+    }).finally(() => {
+        loading.value = false
     })
 }
 
-// 组件挂载时刷新一次配置文件
-onMounted(() => {
+// 组件时刷新一次配置文件
+onActivated(() => {
     handleRefresh()
 })
 
 // 处理保存配置文件
 const handleSave = () => {
+    loading.value = true
     axiosInstance.post('/config', value.value).then(() => {
         ElMessage.success('Config file saved')
     }).catch(err => {
-        ElMessage.error(`Failed to save config file: ${err}`)
+        ElMessage.error(err.response.data)
+    }).finally(() => {
+        loading.value = false
     })
 }
 
@@ -125,8 +132,6 @@ const handleKeydown = (e: KeyboardEvent) => {
         e.preventDefault() // 阻止浏览器默认保存页面
         handleSave()
     }
-    //
-    
 }
 
 onMounted(() => {

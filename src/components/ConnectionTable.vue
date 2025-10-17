@@ -1,5 +1,5 @@
 <template>
-    <el-table :data="connectionData" stripe highlight-current-row>
+    <el-table :data="connectionData" v-loading="loading" stripe highlight-current-row>
         <el-table-column label="Fd" prop="fd" align="center" sortable />
         <el-table-column label="Type" align="center">
             <template #default="{ row }">
@@ -25,8 +25,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import axiosInstance from '@/api/instance'
+import { ref, onActivated } from 'vue';
+import { axiosInstance } from '@/api/instance'
 import { ElMessage } from 'element-plus'
 
 const type2protocol = {
@@ -48,12 +48,18 @@ interface Connection {
 
 const connectionData = ref<Connection[]>([])
 
+const loading = ref(false)
+
 const handleGetConnections = () => {
+    loading.value = true
     axiosInstance.get('/connection').then(res => {
         connectionData.value = res.data
         ElMessage.success('Connection list refreshed')
     }).catch(err => {
-        ElMessage.error('Failed to fetch connections: ' + err)
+        connectionData.value = []
+        ElMessage.error(err)
+    }).finally(() => {
+        loading.value = false
     })
 }
 
@@ -67,7 +73,7 @@ const handleClose = (row: Connection) => {
     // })
 }
 
-onMounted(() => {
+onActivated(() => {
     handleGetConnections()
 })
 
