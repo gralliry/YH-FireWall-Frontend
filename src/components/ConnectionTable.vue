@@ -15,8 +15,8 @@
         <el-table-column label="Status" prop="status" />
         <!-- Action -->
         <el-table-column label="Action" align="center" width="200">
-            <template #default="{ row }">
-                <el-button size="small" type="danger" @click="handleClose(row)">
+            <template #default="{ $index, row }">
+                <el-button size="small" type="danger" @click="handleClose($index, row)">
                     Close
                 </el-button>
             </template>
@@ -63,14 +63,13 @@ const handleGetConnections = () => {
     })
 }
 
-const handleClose = (row: Connection) => {
-    console.log('Close connection:', row)
-    // axiosInstance.post('/connection/close', { fd: row.fd }).then(res => {
-    //     ElMessage.success('Connection closed')
-    //     handleGetConnections()
-    // }).catch(err => {
-    //     ElMessage.error('Failed to close connection: ' + err)
-    // })
+const handleClose = (index: number, row: Connection) => {
+    axiosInstance.delete(`/connection/${row.pid}/${row.fd}`).then(() => {
+        connectionData.value.splice(index, 1)
+        ElMessage.success('Connection closed')
+    }).catch(err => {
+        ElMessage.error(err.response.data)
+    })
 }
 
 onActivated(() => {

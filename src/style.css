@@ -6,9 +6,8 @@
     font-family: 'Consolas', 'Courier New', monospace;
 }
 
-body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
+.el-button {
+    font-family: 'Consolas', 'Courier New', monospace;
 }
 
 #app {

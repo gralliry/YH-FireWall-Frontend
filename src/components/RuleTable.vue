@@ -54,7 +54,7 @@
             </div>
             <div class="header-buttons">
                 <el-button :icon="Refresh" @click="handleRefresh" :disabled="loading" />
-                <el-button :icon="Plus" @click="handleAdd" :disabled="loading"/>
+                <el-button :icon="Plus" @click="handleAdd" :disabled="loading" />
             </div>
         </el-header>
 
@@ -172,7 +172,7 @@
                             Edit
                         </el-button>
                         <el-popconfirm v-if="!row.isEditing" icon-color="#626AEF" title="Delete this?" placement="left"
-                            @confirm="handleDelete($index)">
+                            @confirm="handleDelete($index, row)">
                             <template #reference>
                                 <el-button size="small" type="danger">Delete</el-button>
                             </template>
@@ -185,7 +185,7 @@
                         <el-button v-if="row.isEditing" type="success" size="small" @click="handleConfirm(row)">
                             Confirm
                         </el-button>
-                        <el-button v-if="row.isEditing" size="small" type="info" @click="handleCancel(row)">
+                        <el-button v-if="row.isEditing" size="small" type="info" @click="handleCancel($index, row)">
                             Cancel
                         </el-button>
                     </template>
@@ -259,10 +259,9 @@ const handleEdit = (row: ERule) => {
     row.isEditing = true
 }
 
-const handleCancel = (row: ERule) => {
+const handleCancel = (index: number, row: ERule) => {
     if (row.isNew) {
-        const index = ruleData.value.findIndex(r => r === row)
-        if (index !== -1) ruleData.value.splice(index, 1)
+        ruleData.value.splice(index, 1)
     } else {
         row.isEditing = false
     }
@@ -270,16 +269,10 @@ const handleCancel = (row: ERule) => {
 
 const handleConfirm = (row: ERule) => {
     if (row.isNew) {
-        // 修改的值才加入列表
-        const data = Object.fromEntries(
-            Object.entries(row.cache).filter(([key, value]) => {
-                const k = key as keyof Rule
-                return row.data[k] !== value
-            })
-        ) as Partial<Rule>
-
-        axiosInstance.post('/rule', data).then(() => {
+        axiosInstance.post('/rule', row.cache).then(res => {
+            row.cache.id = res.data
             Object.assign(row.data, row.cache)
+            // 结束编辑
             row.isEditing = false
             row.isNew = false
             ElMessage.success('Rule added')
@@ -287,7 +280,14 @@ const handleConfirm = (row: ERule) => {
             ElMessage.error(err)
         })
     } else {
-        axiosInstance.put(`/rule/${row.data.id}`, row.cache).then(() => {
+        // 修改的值才加入列表
+        const data = Object.fromEntries(
+            Object.entries(row.cache).filter(([key, value]) => {
+                const k = key as keyof Rule
+                return row.data[k] !== value
+            })
+        ) as Partial<Rule>
+        axiosInstance.put(`/rule/${row.data.id}`, data).then(() => {
             Object.assign(row.data, row.cache)
             row.isEditing = false
             ElMessage.success('Saved successfully')
@@ -297,13 +297,8 @@ const handleConfirm = (row: ERule) => {
     }
 }
 
-const handleDelete = (index: number) => {
-    const rule = ruleData.value[index]
-    if (!rule) {
-        ElMessage.error('Rule not found')
-        return
-    }
-    axiosInstance.delete(`/rule/${rule.data.id}`).then(() => {
+const handleDelete = (index: number, row: ERule) => {
+    axiosInstance.delete(`/rule/${row.data.id}`).then(() => {
         ruleData.value.splice(index, 1)
         ElMessage.success('Deleted successfully')
     }).catch(err => {
