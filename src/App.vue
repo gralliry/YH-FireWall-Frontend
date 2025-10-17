@@ -81,18 +81,16 @@
 
         <el-main class="main">
             <!-- 左侧导航菜单 -->
-            <el-menu class="main-nav" default-active="rule" router :unique-opened="true" @select="handleMenuSelect">
-                <el-menu-item index="rule">Rule</el-menu-item>
-                <el-menu-item index="connection">Connection</el-menu-item>
-                <el-menu-item index="interface">Interface</el-menu-item>
-                <el-menu-item index="config">Config</el-menu-item>
+            <el-menu class="main-nav" router default-active="/rule" :unique-opened="true">
+                <el-menu-item index="/rule">Rule</el-menu-item>
+                <el-menu-item index="/connection">Connection</el-menu-item>
+                <el-menu-item index="/interface">Interface</el-menu-item>
+                <el-menu-item index="/config">Config</el-menu-item>
             </el-menu>
-            <!-- 右侧内容区 -->
+
+            <!-- 右侧内容区：由路由控制 -->
             <div class="main-content">
-                <RuleTable v-show="activeMenu === 'rule'" />
-                <ConnectionTable v-show="activeMenu === 'connection'" />
-                <InterfaceTable v-show="activeMenu === 'interface'" />
-                <ConfigArea v-show="activeMenu === 'config'" />
+                <router-view />
             </div>
         </el-main>
 
@@ -101,18 +99,5 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-//
-import RuleTable from '@/views/RuleTable.vue'
-import ConnectionTable from '@/views/ConnectionTable.vue'
-import InterfaceTable from '@/views/InterfaceTable.vue'
-import ConfigArea from '@/views/ConfigArea.vue'
-// 
 import DarkMode from '@/components/DarkMode.vue'
-
-const activeMenu = ref('rule')
-
-const handleMenuSelect = (index: string) => {
-    activeMenu.value = index
-}
 </script>
