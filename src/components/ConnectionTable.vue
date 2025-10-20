@@ -1,11 +1,11 @@
 <template>
     <el-table :data="connectionData" v-loading="loading" stripe highlight-current-row>
-        <el-table-column label="Protocol" align="center">
+        <el-table-column label="Protocol" align="center" width="150">
             <template #default="{ row }">
                 {{ protocol2str[row.protocol as 6 | 17] }}({{ family2str[row.family as 2 | 10] }})
             </template>
         </el-table-column>
-        <el-table-column label="LocalAddr">
+        <el-table-column label="LocalAddr" align="right">
             <template #default="{ row }">
                 <span v-if="row.family === 2">{{ row.localIP }}:{{ row.localPort }}</span>
                 <span v-else-if="row.family === 10">[{{ row.localIP }}]:{{ row.localPort }}</span>
@@ -13,18 +13,26 @@
         </el-table-column>
         <el-table-column width="50">
             <template #default="{ row }">
-                <span v-if="row.direction === 0"> <- </span>
-                        <span v-else-if="row.direction === 1">-></span>
-                        <span v-else-if="row.direction === 2"><-></span>
+                <span v-if="row.direction === 0"> <el-icon>
+                        <Back />
+                    </el-icon> </span>
+                <span v-else-if="row.direction === 1"><el-icon>
+                        <Right />
+                    </el-icon></span>
+                <span v-else-if="row.direction === 2"> <el-icon>
+                        <Back />
+                    </el-icon><el-icon>
+                        <Right />
+                    </el-icon></span>
             </template>
         </el-table-column>
-        <el-table-column label="RemoteAddr">
+        <el-table-column label="RemoteAddr" align="left">
             <template #default="{ row }">
                 <span v-if="row.family === 2">{{ row.remoteIP }}:{{ row.remotePort }}</span>
                 <span v-else-if="row.family === 10">[{{ row.remoteIP }}]:{{ row.remotePort }}</span>
             </template>
         </el-table-column>
-        <el-table-column label="EstablishedTime">
+        <el-table-column label="EstablishedTime" align="right">
             <template #default="{ row }">
                 {{ formatTimeAgo(row.establishedTime) }}
             </template>
@@ -44,6 +52,7 @@
 import { ref, onActivated } from 'vue';
 import { axiosInstance } from '@/api/instance'
 import { ElMessage } from 'element-plus'
+import { Back, Right } from '@element-plus/icons-vue'
 
 const protocol2str = {
     6: "TCP",
