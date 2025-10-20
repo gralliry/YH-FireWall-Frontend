@@ -61,11 +61,11 @@
 <template>
     <el-container class="container" v-loading="loading">
         <el-header class="header">
-            <el-button :icon="Refresh" @click="handleRefresh" :disabled="loading"/>
-            <el-button :icon="Select" @click="handleSave" :disabled="loading"/>
+            <el-button :icon="Refresh" @click="handleRefresh" :disabled="loading" />
+            <el-button :icon="Select" @click="handleSave" :disabled="loading" />
         </el-header>
         <el-main class="main">
-            <div class="textarea-with-lines" >
+            <div class="textarea-with-lines">
                 <div class="line-numbers">
                     <div v-for="i in lineCount" :key="i">{{ i }}</div>
                 </div>
@@ -94,14 +94,14 @@ const loading = ref(false)
 watch(value, () => { lineCount.value = value.value.split('\n').length || 1 }, { immediate: true })
 
 // 处理刷新配置文件
-const handleRefresh = () => {
+function handleRefresh() {
     loading.value = true
     axiosInstance.get('/config').then(res => {
         value.value = res.data
         ElMessage.success(`Config file refreshed`)
     }).catch(err => {
         value.value = ''
-        ElMessage.error(err.response.data)
+        ElMessage.error(err.response.data || "Failed to load config file")
     }).finally(() => {
         loading.value = false
     })
@@ -113,7 +113,7 @@ onActivated(() => {
 })
 
 // 处理保存配置文件
-const handleSave = () => {
+function handleSave() {
     loading.value = true
     axiosInstance.post('/config', value.value).then(() => {
         ElMessage.success('Config file saved')
@@ -125,7 +125,7 @@ const handleSave = () => {
 }
 
 // ctrl+s 监听
-const handleKeydown = (e: KeyboardEvent) => {
+function handleKeydown(e: KeyboardEvent) {
     // 检查是否按下 Ctrl+S 或 Cmd+S（Mac）
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
         e.preventDefault() // 阻止浏览器默认保存页面

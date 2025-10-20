@@ -244,9 +244,9 @@ const visibleCols = ref({
 })
 
 // ---------- 工具函数 ----------
-const filterGroup = (value: string, row: ERule) => row.data.group === value
-const filterAccept = (value: boolean, row: ERule) => row.data.accept === value
-const filterEnable = (value: boolean, row: ERule) => row.data.enable === value
+function filterGroup(value: string, row: ERule) { row.data.group === value }
+function filterAccept(value: boolean, row: ERule) { row.data.accept === value }
+function filterEnable(value: boolean, row: ERule) { row.data.enable === value }
 
 const groupData = computed(() => {
     const groups = Array.from(new Set(ruleData.value.map(r => r.data.group).filter(Boolean)))
@@ -254,12 +254,12 @@ const groupData = computed(() => {
 })
 
 // ---------- 事件 ----------
-const handleEdit = (row: ERule) => {
+function handleEdit(row: ERule) {
     Object.assign(row.cache, row.data)
     row.isEditing = true
 }
 
-const handleCancel = (index: number, row: ERule) => {
+function handleCancel(index: number, row: ERule) {
     if (row.isNew) {
         ruleData.value.splice(index, 1)
     } else {
@@ -267,7 +267,7 @@ const handleCancel = (index: number, row: ERule) => {
     }
 }
 
-const handleConfirm = (row: ERule) => {
+function handleConfirm(row: ERule) {
     if (row.isNew) {
         axiosInstance.post('/rule', row.cache).then(res => {
             row.cache.id = res.data
@@ -297,7 +297,7 @@ const handleConfirm = (row: ERule) => {
     }
 }
 
-const handleDelete = (index: number, row: ERule) => {
+function handleDelete(index: number, row: ERule) {
     axiosInstance.delete(`/rule/${row.data.id}`).then(() => {
         ruleData.value.splice(index, 1)
         ElMessage.success('Deleted successfully')
@@ -306,7 +306,7 @@ const handleDelete = (index: number, row: ERule) => {
     })
 }
 
-const handleAdd = () => {
+function handleAdd() {
     const newRule: Rule = {
         id: '',
         group: '',
@@ -333,7 +333,7 @@ const handleAdd = () => {
 
 const loading = ref(false)
 
-const handleRefresh = () => {
+function handleRefresh() {
     loading.value = true
     axiosInstance.get('/rule').then(res => {
         ruleData.value = res.data.map((r: Rule) => ({

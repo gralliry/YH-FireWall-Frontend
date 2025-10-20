@@ -37,7 +37,7 @@ const interfaceData = ref<Interface[]>([])
 const loading = ref(false)
 
 // 获取接口列表
-const handleGetInterfaces = () => {
+function handleGetInterfaces() {
     loading.value = true
     axiosInstance.get('/interface').then(res => {
         interfaceData.value = res.data

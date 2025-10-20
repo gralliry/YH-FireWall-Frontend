@@ -19,9 +19,8 @@ import { ElMessage } from 'element-plus'
 
 import { setConfig, axiosInstance } from '@/api/instance'
 
-// 从 localStorage 加载初始状态
 const config = reactive({
-    address: 'http://172.19.237.14:8080/api',
+    address: 'http://172.19.237.114:8080/api',
     token: 'token'
 })
 
@@ -33,9 +32,9 @@ watch(config, () => {
     setConfig(config.address, config.token)
 })
 
-const handleTest = () => {
+function handleTest() {
     axiosInstance.get('/ping').then(() => {
-        ElMessage.success('Connection successful')
+        ElMessage.success('Test successful')
     }).catch((err) => {
         ElMessage.error(err)
     })

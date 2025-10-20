@@ -88,6 +88,7 @@
             <el-menu class="main-nav" router default-active="/settings" :unique-opened="true">
                 <el-menu-item index="/rule">Rule</el-menu-item>
                 <el-menu-item index="/connection">Connection</el-menu-item>
+                <el-menu-item index="/process">Process</el-menu-item>
                 <el-menu-item index="/interface">Interface</el-menu-item>
                 <el-menu-item index="/config">Config</el-menu-item>
                 <el-menu-item index="/settings">Settings</el-menu-item>
