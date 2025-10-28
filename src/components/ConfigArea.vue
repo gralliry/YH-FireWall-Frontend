@@ -101,7 +101,7 @@ function handleRefresh() {
         ElMessage.success(`Config file refreshed`)
     }).catch(err => {
         value.value = ''
-        ElMessage.error(err.response.data || "Failed to load config file")
+        ElMessage.error(err.response?.data || err.message || "Failed to load config file")
     }).finally(() => {
         loading.value = false
     })
@@ -118,7 +118,7 @@ function handleSave() {
     axiosInstance.post('/config', value.value).then(() => {
         ElMessage.success('Config file saved')
     }).catch(err => {
-        ElMessage.error(err.response.data || "Failed to save config file")
+        ElMessage.error(err.response?.data || err.message || "Failed to save config file")
     }).finally(() => {
         loading.value = false
     })

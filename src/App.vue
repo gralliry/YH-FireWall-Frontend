@@ -102,7 +102,7 @@
             </div>
         </el-main>
 
-        <el-footer class="footer">© 2025 梁建烨. All rights reserved.</el-footer>
+        <el-footer class="footer">© 2025 Liang & Li. All rights reserved.</el-footer>
     </el-container>
 </template>
 

@@ -44,7 +44,7 @@ function handleGetInterfaces() {
         ElMessage.success('Interface list refreshed')
     }).catch(err => {
         interfaceData.value = []
-        ElMessage.error(err.response.data || 'Failed to get interface list')
+        ElMessage.error(err.response?.data || err.message || 'Failed to get interface list')
     }).finally(() => {
         loading.value = false
     })

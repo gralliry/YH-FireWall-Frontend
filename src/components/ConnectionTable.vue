@@ -82,7 +82,10 @@ interface Connection {
 
     remoteIP: string
     remotePort: number
+
     status: string
+
+    establishedTime: number
 }
 
 const connectionData = ref<Connection[]>([])
@@ -93,10 +96,11 @@ function handleGetConnections() {
     loading.value = true
     axiosInstance.get('/connection').then(res => {
         connectionData.value = res.data
+        connectionData.value.sort((a, b) => b.establishedTime - a.establishedTime)
         ElMessage.success('Connection list refreshed')
     }).catch(err => {
         connectionData.value = []
-        ElMessage.error(err.response.data || 'Failed to get connection list')
+        ElMessage.error(err.response?.data || err.message || 'Failed to get connection list')
     }).finally(() => {
         loading.value = false
     })
@@ -107,7 +111,7 @@ function handleConnectionClose(index: number, row: Connection) {
         connectionData.value.splice(index, 1)
         ElMessage.success('Connection closed')
     }).catch(err => {
-        ElMessage.error(err.response.data || 'Failed to close connection')
+        ElMessage.error(err.response?.data || err.message || 'Failed to close connection')
     })
 }
 
