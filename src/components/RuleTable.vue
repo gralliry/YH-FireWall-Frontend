@@ -275,9 +275,9 @@ function handleConfirm(row: ERule) {
             // 结束编辑
             row.isEditing = false
             row.isNew = false
-            ElMessage.success('Rule added')
+            ElMessage.success('Added successfully')
         }).catch(err => {
-            ElMessage.error(err)
+            ElMessage.error(err.response.data || 'Failed to add rule')
         })
     } else {
         // 修改的值才加入列表
@@ -292,7 +292,7 @@ function handleConfirm(row: ERule) {
             row.isEditing = false
             ElMessage.success('Saved successfully')
         }).catch(err => {
-            ElMessage.error(err)
+            ElMessage.error(err.response.data || 'Failed to save rule')
         })
     }
 }
@@ -302,7 +302,7 @@ function handleDelete(index: number, row: ERule) {
         ruleData.value.splice(index, 1)
         ElMessage.success('Deleted successfully')
     }).catch(err => {
-        ElMessage.error(err)
+        ElMessage.error(err.response.data || 'Failed to delete rule')
     })
 }
 
@@ -345,7 +345,7 @@ function handleRefresh() {
         ElMessage.success(`Rule list refreshed`)
     }).catch(err => {
         ruleData.value = []
-        ElMessage.error(err)
+        ElMessage.error(err.response.data || 'Failed to get rule list')
     }).finally(() => {
         loading.value = false
     })

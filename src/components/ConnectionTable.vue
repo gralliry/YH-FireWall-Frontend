@@ -1,11 +1,17 @@
 <template>
     <el-table :data="connectionData" v-loading="loading" stripe highlight-current-row>
-        <el-table-column label="Protocol" align="center" width="150">
+        <el-table-column label="Fd" prop="fd" align="center" width="80" sortable />
+        <el-table-column label="Protocol" align="center" width="100">
             <template #default="{ row }">
                 {{ protocol2str[row.protocol as 6 | 17] }}({{ family2str[row.family as 2 | 10] }})
             </template>
         </el-table-column>
-        <el-table-column label="LocalAddr" align="right">
+        <el-table-column label="PID" prop="pid" align="center" width="100" sortable />
+        <el-table-column label="Exe" prop="exe" align="center" sortable show-overflow-tooltip />
+        <el-table-column label="Name" prop="name" align="center" width="100" />
+        <el-table-column label="User" prop="username" align="center" width="100" />
+        <el-table-column label="Interface" prop="interface" align="center" width="100" />
+        <el-table-column label="LocalAddr" show-overflow-tooltip>
             <template #default="{ row }">
                 <span v-if="row.family === 2">{{ row.localIP }}:{{ row.localPort }}</span>
                 <span v-else-if="row.family === 10">[{{ row.localIP }}]:{{ row.localPort }}</span>
@@ -16,33 +22,26 @@
                 <span v-if="row.direction === 0"> <el-icon>
                         <Back />
                     </el-icon> </span>
-                <span v-else-if="row.direction === 1"><el-icon>
+                <span v-if="row.direction === 1"><el-icon>
                         <Right />
                     </el-icon></span>
-                <span v-else-if="row.direction === 2"> <el-icon>
+                <span v-if="row.direction === 2"> <el-icon>
                         <Back />
-                    </el-icon><el-icon>
                         <Right />
                     </el-icon></span>
             </template>
         </el-table-column>
-        <el-table-column label="RemoteAddr" align="left">
+        <el-table-column label="RemoteAddr" show-overflow-tooltip>
             <template #default="{ row }">
                 <span v-if="row.family === 2">{{ row.remoteIP }}:{{ row.remotePort }}</span>
                 <span v-else-if="row.family === 10">[{{ row.remoteIP }}]:{{ row.remotePort }}</span>
             </template>
         </el-table-column>
-        <el-table-column label="EstablishedTime" align="right">
-            <template #default="{ row }">
-                {{ formatTimeAgo(row.establishedTime) }}
-            </template>
-        </el-table-column>
-        <!-- Action -->
-        <el-table-column label="Action" align="center" width="90">
+        <el-table-column label="Status" prop="status" width="120" />
+        <el-table-column label="Action" width="100" align="center">
             <template #default="{ $index, row }">
-                <el-button size="small" type="danger" @click="handleClose($index, row)">
-                    Close
-                </el-button>
+                <el-button v-if="row.status == 'ESTABLISHED'" size="small" type="danger"
+                    @click="handleConnectionClose($index, row)">Close</el-button>
             </template>
         </el-table-column>
     </el-table>
@@ -65,19 +64,25 @@ const family2str = {
 } as const;
 
 interface Connection {
-    id: string
-    protocol: 1 | 2
+    id: number
+
+    fd: number
     family: 2 | 10
+    protocol: 6 | 17
+    pid: number
+    exe: string
+    name: string
+    username: string
+    interface: string
 
     localIP: string
     localPort: number
 
-    direction: 0 | 1 | 2
+    direction: 0 | 1 | 2 | 3
 
     remoteIP: string
     remotePort: number
-
-    establishedTime: number
+    status: string
 }
 
 const connectionData = ref<Connection[]>([])
@@ -91,43 +96,22 @@ function handleGetConnections() {
         ElMessage.success('Connection list refreshed')
     }).catch(err => {
         connectionData.value = []
-        ElMessage.error(err)
+        ElMessage.error(err.response.data || 'Failed to get connection list')
     }).finally(() => {
         loading.value = false
     })
 }
 
-function handleClose(index: number, row: Connection) {
+function handleConnectionClose(index: number, row: Connection) {
     axiosInstance.delete(`/connection/${row.id}`).then(() => {
         connectionData.value.splice(index, 1)
         ElMessage.success('Connection closed')
     }).catch(err => {
-        ElMessage.error(err.response.data)
+        ElMessage.error(err.response.data || 'Failed to close connection')
     })
 }
 
 onActivated(() => {
     handleGetConnections()
 })
-
-
-function formatTimeAgo(timestamp: number): string {
-    const now = Math.floor(Date.now() / 1000)
-    const diff = now - timestamp
-
-    if (diff < 60) {
-        return `${diff}s ago`
-    } else if (diff < 3600) {
-        const minutes = Math.floor(diff / 60)
-        return `${minutes}m ago`
-    } else if (diff < 86400) {
-        const hours = Math.floor(diff / 3600)
-        return `${hours}h ago`
-    } else {
-        const days = Math.floor(diff / 86400)
-        return `${days}d ago`
-    }
-}
-
-
 </script>

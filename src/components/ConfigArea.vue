@@ -118,7 +118,7 @@ function handleSave() {
     axiosInstance.post('/config', value.value).then(() => {
         ElMessage.success('Config file saved')
     }).catch(err => {
-        ElMessage.error(err.response.data)
+        ElMessage.error(err.response.data || "Failed to save config file")
     }).finally(() => {
         loading.value = false
     })
