@@ -85,7 +85,7 @@
 
         <el-main class="main">
             <!-- 左侧导航菜单 -->
-            <el-menu class="main-nav" router default-active="/" :unique-opened="true">
+            <el-menu class="main-nav" router default-active="/rule" :unique-opened="true">
                 <el-menu-item index="/rule">Rule</el-menu-item>
                 <el-menu-item index="/connection">Connection</el-menu-item>
                 <el-menu-item index="/interface">Interface</el-menu-item>
@@ -102,7 +102,7 @@
             </div>
         </el-main>
 
-        <el-footer class="footer">© 2025 Liang & Li. All rights reserved.</el-footer>
+        <el-footer class="footer">© 2025 Mr.Liang & Mr.Li. All rights reserved.</el-footer>
     </el-container>
 </template>
 
