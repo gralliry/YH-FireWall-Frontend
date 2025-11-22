@@ -101,8 +101,6 @@
                 </router-view>
             </div>
         </el-main>
-
-        <el-footer class="footer">© 2025 Mr.Liang & Mr.Li. All rights reserved.</el-footer>
     </el-container>
 </template>
 
